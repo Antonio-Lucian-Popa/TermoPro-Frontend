@@ -4,12 +4,6 @@ Interfața web pentru aplicația **Termopan Manager**, un sistem intern dedicat 
 
 ---
 
-## 🌐 Demo (opțional)
-
-> `https://termopan-manager-frontend.vercel.app`
-
----
-
 ## ⚙️ Tech Stack
 
 - ⚛️ **React JS** (cu Vite)
