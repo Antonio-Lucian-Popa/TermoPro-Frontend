@@ -18,16 +18,18 @@ Interfața web pentru aplicația **Termopan Manager**, un sistem intern dedicat 
 ---
 
 ## 🧱 Structura proiectului
-src/
-├── assets/ # Imagini, logo, stiluri globale
-├── components/ # Componente reutilizabile (Card, Modal, Table etc.)
-├── pages/ # Pagini per funcționalitate (Dashboard, Orders, TimeOff...)
-├── services/ # Servicii Axios pentru API
-├── hooks/ # Hookuri utile (useAuth, useFetch etc.)
-├── context/ # Auth context / User provider
-├── routes/ # Configurare rute private/publice
-├── App.tsx # Router + layout principal
-└── main.tsx # Entry point
+```bash
+📦 src/
+    ├── assets/ # Imagini, logo, stiluri globale
+    ├── components/ # Componente reutilizabile (Card, Modal, Table etc.)
+    ├── pages/ # Pagini per funcționalitate (Dashboard, Orders, TimeOff...)
+    ├── services/ # Servicii Axios pentru API
+    ├── hooks/ # Hookuri utile (useAuth, useFetch etc.)
+    ├── context/ # Auth context / User provider
+    ├── routes/ # Configurare rute private/publice
+    ├── App.tsx # Router + layout principal
+    └── main.tsx # Entry point
+```
 
 ## 🛠️ Funcționalități principale
 ✅ Login / Register cu Keycloak
