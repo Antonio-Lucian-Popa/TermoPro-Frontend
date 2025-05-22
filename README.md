@@ -32,16 +32,16 @@ Interfața web pentru aplicația **Termopan Manager**, un sistem intern dedicat 
 ```
 
 ## 🛠️ Funcționalități principale
-✅ Login / Register cu Keycloak
-✅ Dashboard personalizat în funcție de rol
-✅ Management firme și angajați
-✅ Creare și organizare echipe
-✅ Taskuri zilnice (individuale sau pe echipă)
-✅ Comentarii și poze pe fiecare task
-✅ Cereri concediu / învoire
-✅ Aprobare cereri de către OWNER
-✅ Export date în PDF & Excel
-✅ Interfață mobil-friendly
+- ✅ Login / Register cu Keycloak
+- ✅ Dashboard personalizat în funcție de rol
+- ✅ Management firme și angajați
+- ✅ Creare și organizare echipe
+- ✅ Taskuri zilnice (individuale sau pe echipă)
+- ✅ Comentarii și poze pe fiecare task
+- ✅ Cereri concediu / învoire
+- ✅ Aprobare cereri de către OWNER
+- ✅ Export date în PDF & Excel
+- ✅ Interfață mobil-friendly
 
 ## 🔐 Roluri suportate
 - OWNER – adminul firmei, control total
