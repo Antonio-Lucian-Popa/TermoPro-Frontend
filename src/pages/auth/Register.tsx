@@ -24,6 +24,7 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { Role } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { companyService } from '@/services/company.service';
 
 const formSchema = z.object({
   firstName: z.string().min(2, { message: 'Prenumele trebuie să aibă cel puțin 2 caractere' }),
@@ -57,14 +58,20 @@ export default function Register() {
     clearError();
     
     try {
-      await register({
+      const user = await register({
         firstName: values.firstName,
         lastName: values.lastName,
         email: values.email,
         password: values.password,
-        role: values.role,
-        companyName: values.companyName,
+        role: values.role
       });
+
+      if(user) {
+       await companyService.createCompany({
+          name: values.companyName,
+          ownerId: user.id,
+        });
+      }
       
       navigate('/login');
     } catch (error) {

@@ -2,8 +2,8 @@ import { Company, Invitation, User } from '@/types';
 import { apiService } from './api';
 
 class CompanyService {
-  async createCompany(name: string): Promise<Company> {
-    return apiService.post('/company', { name });
+  async createCompany({ name, ownerId }: { name: string; ownerId: string }): Promise<Company> {
+    return apiService.post('/company', { name, ownerId });
   }
   
   async getCompanyDetails(companyId: string): Promise<Company> {

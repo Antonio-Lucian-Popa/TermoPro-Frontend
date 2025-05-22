@@ -11,7 +11,7 @@ interface AuthContextType {
   loading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (userData: Partial<User> & { password: string }) => Promise<void>;
+  register: (userData: Partial<User> & { password: string }) => Promise<User>;
   registerWithInvite: (userData: Partial<User> & { password: string }, token: string) => Promise<void>;
   logout: () => void;
   clearError: () => void;
