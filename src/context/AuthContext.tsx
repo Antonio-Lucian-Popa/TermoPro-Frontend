@@ -62,25 +62,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setError(null);
     
     try {
-      const { accessToken, refreshToken, expires_in } = await authService.login(email, password);
+      const { access_token, refresh_token } = await authService.login(email, password);
       
       // Get user details using the keycloakId
       // decode jwt token to get keycloakId
-      const tokenData: TokenPayload = jwtDecode(accessToken);
+      const tokenData: TokenPayload = jwtDecode(access_token);
+      console.log("Decoded token data:", tokenData);
       const keycloakId = tokenData.sub;
       const userDetails = await authService.getUserByKeycloakId(keycloakId);
       
       const authUser: AuthUser = {
         ...userDetails,
-        accessToken,
-        refreshToken
+        accessToken: access_token,
+        refreshToken: refresh_token,
       };
       
       setUser(authUser);
       
       // Save to localStorage
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('accessToken', access_token);
+      localStorage.setItem('refreshToken', refresh_token);
       localStorage.setItem('user', JSON.stringify(userDetails));
       
       toast({
@@ -88,6 +89,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         description: `Welcome back, ${userDetails.firstName}!`,
       });
     } catch (err) {
+      console.error("Login error:", err);
       setError("Invalid email or password. Please try again.");
       toast({
         variant: "destructive",
