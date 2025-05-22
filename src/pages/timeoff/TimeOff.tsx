@@ -13,7 +13,7 @@ export default function TimeOff() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [requests, setRequests] = useState<TimeOffRequest[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (user) {

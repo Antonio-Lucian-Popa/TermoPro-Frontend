@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Users } from 'lucide-react';
@@ -13,7 +14,7 @@ export default function Teams() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [teams, setTeams] = useState<Team[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     loadTeams();
@@ -23,6 +24,7 @@ export default function Teams() {
     if (!user?.companyId) return;
 
     try {
+      setLoading(true);
       const data = await teamService.getCompanyTeams(user.companyId);
       setTeams(data);
     } catch (error) {

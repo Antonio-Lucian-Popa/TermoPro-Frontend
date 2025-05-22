@@ -139,7 +139,7 @@ export default function CreateTimeOff() {
                     <FormItem>
                       <FormLabel>Data început</FormLabel>
                       <FormControl>
-                        <Input type="date" {...field} />
+                        <Input type="date" {...field} className="w-full" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -153,7 +153,7 @@ export default function CreateTimeOff() {
                     <FormItem>
                       <FormLabel>Data sfârșit</FormLabel>
                       <FormControl>
-                        <Input type="date" {...field} />
+                        <Input type="date" {...field} className="w-full" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -170,7 +170,7 @@ export default function CreateTimeOff() {
                       <FormItem>
                         <FormLabel>Ora început</FormLabel>
                         <FormControl>
-                          <Input type="time" {...field} />
+                          <Input type="time" {...field}  className="w-full" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -184,7 +184,7 @@ export default function CreateTimeOff() {
                       <FormItem>
                         <FormLabel>Ora sfârșit</FormLabel>
                         <FormControl>
-                          <Input type="time" {...field} />
+                          <Input type="time" {...field}  className="w-full" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
