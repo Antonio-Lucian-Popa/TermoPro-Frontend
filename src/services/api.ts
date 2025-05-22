@@ -1,6 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { API_URL } from '@/utils/constants';
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-
-const API_URL = '/api/v1';
 
 class ApiService {
   private api: AxiosInstance;

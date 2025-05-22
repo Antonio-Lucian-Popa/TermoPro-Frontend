@@ -1,7 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { createContext, useContext, useEffect, useState } from 'react';
 import { AuthUser, User } from '@/types';
 import { authService } from '@/services/auth.service';
 import { useToast } from '@/hooks/use-toast';
+import { jwtDecode } from 'jwt-decode';
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -12,6 +15,13 @@ interface AuthContextType {
   registerWithInvite: (userData: Partial<User> & { password: string }, token: string) => Promise<void>;
   logout: () => void;
   clearError: () => void;
+}
+
+interface TokenPayload {
+  sub: string; // UUID-ul userului (keycloakId)
+  exp?: number;
+  iat?: number;
+  [key: string]: any;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -52,10 +62,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setError(null);
     
     try {
-      const { accessToken, refreshToken, expires_in, ...tokenData } = await authService.login(email, password);
+      const { accessToken, refreshToken, expires_in } = await authService.login(email, password);
       
       // Get user details using the keycloakId
-      const userDetails = await authService.getUserByKeycloakId(tokenData.sub);
+      // decode jwt token to get keycloakId
+      const tokenData: TokenPayload = jwtDecode(accessToken);
+      const keycloakId = tokenData.sub;
+      const userDetails = await authService.getUserByKeycloakId(keycloakId);
       
       const authUser: AuthUser = {
         ...userDetails,
