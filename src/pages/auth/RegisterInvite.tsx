@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, UserCog } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -17,12 +17,19 @@ import { Input } from '@/components/ui/input';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { authService } from '@/services/auth.service';
+import { Role } from '@/types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const formSchema = z.object({
   firstName: z.string().min(2, { message: 'Prenumele trebuie să aibă cel puțin 2 caractere' }),
   lastName: z.string().min(2, { message: 'Numele trebuie să aibă cel puțin 2 caractere' }),
   email: z.string().email({ message: 'Adresa de email invalidă' }).optional(),
   password: z.string().min(6, { message: 'Parola trebuie să aibă cel puțin 6 caractere' }),
+  role: z.nativeEnum(Role, {
+    errorMap: () => ({ message: 'Please select your role' }),
+  }),
+  companyId: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -31,30 +38,40 @@ export default function RegisterInvite() {
   const { registerWithInvite, loading, error, clearError } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const invitationToken = searchParams.get('token');
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [tokenValid, setTokenValid] = useState(false);
-  
-  const token = searchParams.get('token');
-  
+
+  const [isInvited, setIsInvited] = useState(!!invitationToken);
+  const [invitedEmail, setInvitedEmail] = useState('');
+  const [isRolePredefined, setIsRolePredefined] = useState(false);
+
   useEffect(() => {
     // In a real app, we would validate the token with an API call
     // and pre-fill the email from the invitation
-    if (token) {
-      setTokenValid(true);
-      // For demo purposes, we'll just set a fake email
-      setEmail('invited@example.com');
-    } else {
-      toast({
-        variant: 'destructive',
-        title: 'Link invalid',
-        description: 'Linkul de invitație nu este valid sau a expirat.',
-      });
-      setTokenValid(false);
+    if (invitationToken) {
+      const checkInvitation = async () => {
+        try {
+          const { used, employeeEmail, role, companyId } = await authService.validateInvitation(invitationToken);
+          console.log("ClinicId: ", companyId)
+          if (!used) {
+            setIsInvited(true);
+            setInvitedEmail(employeeEmail);
+            form.setValue("email", employeeEmail);
+            form.setValue("role", role);
+            setIsRolePredefined(true); // 👈 indicăm că rolul e deja setat
+            form.setValue("companyId", companyId);
+          }
+        } catch (error) {
+          console.error('Invalid invitation token', error);
+        }
+      };
+      checkInvitation();
     }
-  }, [token, toast]);
-  
+  }, [invitationToken]);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -62,17 +79,18 @@ export default function RegisterInvite() {
       lastName: '',
       email: '',
       password: '',
+      companyId: undefined,
     },
   });
-  
+
   useEffect(() => {
     if (email) {
       form.setValue('email', email);
     }
   }, [email, form]);
-  
+
   const onSubmit = async (values: FormValues) => {
-    if (!token) {
+    if (!invitationToken) {
       toast({
         variant: 'destructive',
         title: 'Eroare',
@@ -80,23 +98,23 @@ export default function RegisterInvite() {
       });
       return;
     }
-    
+
     clearError();
-    
+
     try {
       await registerWithInvite({
         firstName: values.firstName,
         lastName: values.lastName,
         email: values.email || email,
         password: values.password,
-      }, token);
-      
+      }, invitationToken);
+
       navigate('/login');
     } catch (error) {
       // Error is handled in the auth context
     }
   };
-  
+
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
@@ -144,7 +162,7 @@ export default function RegisterInvite() {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="lastName"
@@ -159,7 +177,7 @@ export default function RegisterInvite() {
                 )}
               />
             </div>
-            
+
             <FormField
               control={form.control}
               name="email"
@@ -167,17 +185,17 @@ export default function RegisterInvite() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input 
-                      value={email} 
-                      disabled 
-                      className="bg-muted" 
+                    <Input
+                      value={invitedEmail}
+                      disabled
+                      className="bg-muted"
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="password"
@@ -198,8 +216,8 @@ export default function RegisterInvite() {
                         className="absolute right-0 top-0 h-full px-3"
                         onClick={toggleShowPassword}
                       >
-                        {showPassword ? 
-                          <EyeOff className="h-4 w-4" /> : 
+                        {showPassword ?
+                          <EyeOff className="h-4 w-4" /> :
                           <Eye className="h-4 w-4" />
                         }
                         <span className="sr-only">
@@ -212,15 +230,42 @@ export default function RegisterInvite() {
                 </FormItem>
               )}
             />
-            
+
+            <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Role</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <UserCog className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground pointer-events-none" />
+                      <Select onValueChange={field.onChange} value={field.value} disabled={isRolePredefined}>
+                        <SelectTrigger className="w-full pl-10">
+                          <SelectValue placeholder="Select your role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={Role.OWNER}>Owner</SelectItem>
+                          <SelectItem value={Role.MANAGER}>Manager</SelectItem>
+                          <SelectItem value={Role.OPERATOR}>Operator</SelectItem>
+                          <SelectItem value={Role.TECHNICIAN}>Technician</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             {error && (
               <div className="text-destructive text-sm">{error}</div>
             )}
-            
+
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Se procesează...' : 'Finalizare înregistrare'}
             </Button>
-            
+
             <div className="text-center text-sm">
               Ai deja cont?{' '}
               <Link to="/login" className="text-primary hover:underline font-medium">

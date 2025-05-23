@@ -1,4 +1,4 @@
-import { User } from '@/types';
+import { Role, User } from '@/types';
 import { apiService } from './api';
 
 class AuthService {
@@ -20,6 +20,10 @@ class AuthService {
   
   async deleteUser(keycloakId: string): Promise<void> {
     return apiService.delete(`/users/by-keycloak/${keycloakId}`);
+  }
+
+  async validateInvitation(token: string): Promise<{ used: boolean, employeeEmail: string, role: Role, companyId: string }> {
+    return apiService.get<{ used: boolean, employeeEmail: string, role: Role, companyId: string }>(`/invitations/validate?token=${token}`);
   }
 }
 
