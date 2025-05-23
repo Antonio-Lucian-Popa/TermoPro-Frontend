@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  Bell, 
-  LogOut, 
-  Menu, 
-  Settings, 
-  User, 
-  X 
+import {
+  Bell,
+  LogOut,
+  Menu,
+  Settings,
+  User,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -22,11 +21,14 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import MobileSidebar from './MobileSidebar';
 import { ThemeToggle } from '../theme/theme-toggle';
+import { useNotificationStore } from '../store/useNotificationStore';
+
 
 export default function Header() {
   const { user, logout } = useAuth();
   const [open, setOpen] = useState(false);
-  
+  const { notifications, clearNotifications } = useNotificationStore();
+
   const handleLogout = () => {
     logout();
   };
@@ -38,7 +40,6 @@ export default function Header() {
 
   return (
     <header className="border-b bg-card py-3 px-4 md:px-6 flex items-center justify-between">
-      {/* Mobile menu button */}
       <div className="md:hidden">
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
@@ -52,21 +53,49 @@ export default function Header() {
           </SheetContent>
         </Sheet>
       </div>
-      
-      {/* Logo - visible on mobile only */}
+
       <div className="md:hidden font-semibold text-lg">
         <Link to="/">Termopan Manager</Link>
       </div>
 
-      {/* Right side items */}
       <div className="flex items-center gap-2 ml-auto">
         <ThemeToggle />
-        
-        <Button variant="ghost" size="icon">
-          <Bell className="h-5 w-5" />
-          <span className="sr-only">Notifications</span>
-        </Button>
-        
+
+        {/* Notification Icon */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="relative">
+              <Bell className="h-5 w-5" />
+              {notifications.length > 0 && (
+                <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500 animate-ping" />
+              )}
+              <span className="sr-only">Notificări</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-72 max-h-96 overflow-auto">
+            <DropdownMenuLabel>Notificări</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {notifications.length === 0 ? (
+              <DropdownMenuItem className="text-sm text-muted-foreground">Nicio notificare</DropdownMenuItem>
+            ) : (
+              notifications.map((n, idx) => (
+                <DropdownMenuItem key={idx} className="flex flex-col space-y-1">
+                  <span className="font-medium text-sm">{n.title}</span>
+                  <span className="text-xs text-muted-foreground">{n.message}</span>
+                </DropdownMenuItem>
+              ))
+            )}
+            {notifications.length > 0 && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={clearNotifications} className="text-sm text-blue-500 cursor-pointer">
+                  Șterge notificările
+                </DropdownMenuItem>
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         {user && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

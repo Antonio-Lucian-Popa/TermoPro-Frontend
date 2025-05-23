@@ -3,6 +3,7 @@ import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useNotificationStore } from '@/components/store/useNotificationStore';
 
 export interface NotificationMessage {
   title: string;
@@ -29,12 +30,18 @@ export const NotificationProvider = ({ children }: { children: React.ReactNode }
       onConnect: () => {
         stompClient.subscribe(`/topic/company/${user.companyId}`, (message) => {
           const notification: NotificationMessage = JSON.parse(message.body);
+      
+          // Salvăm notificarea în store global
+          useNotificationStore.getState().addNotification(notification);
+      
+          // Afișăm toast
           toast({
             title: notification.title,
             description: notification.message,
           });
         });
-      },
+      }
+      
     });
   
     stompClient.activate();
