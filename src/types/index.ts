@@ -105,6 +105,11 @@ export interface Task {
   assignedByUser?: User;
 }
 
+export interface UpdateTeam {
+  name: string;
+  requesterId: string;
+}
+
 export interface TaskUpdate {
   id: string;
   taskId: string;

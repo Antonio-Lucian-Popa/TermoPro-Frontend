@@ -1,4 +1,4 @@
-import { Team, TeamMember, User } from '@/types';
+import { Team, UpdateTeam, User } from '@/types';
 import { apiService } from './api';
 
 class TeamService {
@@ -26,6 +26,17 @@ class TeamService {
     });
     return apiService.post(`/teams/${teamId}/members?${params.toString()}`);
   }
+
+  async updateTeam(teamId: string, updateTeam: UpdateTeam): Promise<Team> {
+    return apiService.put(`/teams/${teamId}`, updateTeam);
+  }
+
+  async deleteTeam(teamId: string, requesterId: string): Promise<void> {
+    const params = new URLSearchParams({
+      requesterId: requesterId,
+    });
+    return apiService.delete(`/teams/${teamId}?${params.toString()}`);
+  }
   
   async removeUserFromTeam(teamId: string, userId: string, requesterId: string): Promise<void> {
     const params = new URLSearchParams({
@@ -34,7 +45,7 @@ class TeamService {
     return apiService.delete(`/teams/${teamId}/members/${userId}?${params.toString()}`);
   }
   
-  async getTeamMembers(teamId: string): Promise<TeamMember[]> {
+  async getTeamMembers(teamId: string): Promise<User[]> {
     return apiService.get(`/teams/${teamId}/members`);
   }
 }
