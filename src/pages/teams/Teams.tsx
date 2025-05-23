@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Plus, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/context/AuthContext';
-import { Team } from '@/types';
+import { Role, Team } from '@/types';
 import { teamService } from '@/services/team.service';
 import { useToast } from '@/hooks/use-toast';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
@@ -18,8 +18,7 @@ export default function Teams() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate();
-
+  const canManageTeam = user?.role === Role.OWNER || user?.role === Role.MANAGER;
 
   useEffect(() => {
     loadTeams();
@@ -101,53 +100,55 @@ export default function Teams() {
                 </p>
               </CardContent>
 
-              <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              {canManageTeam && (
+                <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
 
-                <EditTeamDialog
-                team={team}
-                requesterId={user?.id ?? ''}
-                onUpdated={(updated) => setTeams((prev) => prev.map((t) => (t.id === updated.id ? updated : t)))} // sau reîncarcă datele
-              />
+                  <EditTeamDialog
+                    team={team}
+                    requesterId={user?.id ?? ''}
+                    onUpdated={(updated) => setTeams((prev) => prev.map((t) => (t.id === updated.id ? updated : t)))} // sau reîncarcă datele
+                  />
 
 
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button size="sm" variant="destructive">Șterge</Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Confirmă ștergerea</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Sigur vrei să ștergi echipa <strong>{team.name}</strong>? Această acțiune este ireversibilă.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Anulează</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={async () => {
-                          try {
-                            if (!user) return;
-                            await teamService.deleteTeam(team.id, user.id);
-                            toast({
-                              title: 'Echipă ștearsă',
-                              description: `Echipa ${team.name} a fost ștearsă.`,
-                            });
-                            setTeams((prev) => prev.filter((t) => t.id !== team.id));
-                          } catch (error) {
-                            toast({
-                              variant: 'destructive',
-                              title: 'Eroare la ștergere',
-                              description: 'Nu s-a putut șterge echipa.',
-                            });
-                          }
-                        }}
-                      >
-                        Șterge
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button size="sm" variant="destructive">Șterge</Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Confirmă ștergerea</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Sigur vrei să ștergi echipa <strong>{team.name}</strong>? Această acțiune este ireversibilă.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Anulează</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={async () => {
+                            try {
+                              if (!user) return;
+                              await teamService.deleteTeam(team.id, user.id);
+                              toast({
+                                title: 'Echipă ștearsă',
+                                description: `Echipa ${team.name} a fost ștearsă.`,
+                              });
+                              setTeams((prev) => prev.filter((t) => t.id !== team.id));
+                            } catch (error) {
+                              toast({
+                                variant: 'destructive',
+                                title: 'Eroare la ștergere',
+                                description: 'Nu s-a putut șterge echipa.',
+                              });
+                            }
+                          }}
+                        >
+                          Șterge
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              )}
             </Card>
           ))}
 
