@@ -5,6 +5,7 @@ import AuthLayout from '@/components/layout/AuthLayout';
 import MainLayout from '@/components/layout/MainLayout';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { Role } from '@/types';
+import CreateTeam from '@/pages/teams/CreateTeam';
 
 // Auth pages
 const Login = lazy(() => import('@/pages/auth/Login'));
@@ -80,6 +81,7 @@ export default function AppRoutes() {
             {/* Teams Routes */}
             <Route path="/teams" element={<Teams />} />
             <Route path="/teams/:teamId" element={<TeamDetails />} />
+            <Route path="/teams/create" element={<CreateTeam />} />
 
             {/* Tasks Routes */}
             <Route path="/tasks" element={<Tasks />} />
