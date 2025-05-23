@@ -24,16 +24,29 @@ export default function Tasks() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
 
+  const [page, setPage] = useState(0);
+  const [pageSize] = useState(10); // opțional configurabil
+  const [totalPages, setTotalPages] = useState(0);
+
+
   useEffect(() => {
     loadTasks();
-  }, []);
+  }, [page, statusFilter, typeFilter]);
 
   const loadTasks = async () => {
     if (!user?.companyId) return;
 
     try {
-      const data = await taskService.getCompanyTasks(user.companyId);
-      setTasks(data);
+      const res = await taskService.getCompanyTasksPaginated(
+        user.companyId,
+        page,
+        pageSize,
+        statusFilter,
+        typeFilter
+      );
+
+      setTasks(res.content);
+      setTotalPages(res.totalPages);
     } catch (error) {
       toast({
         variant: 'destructive',
@@ -210,6 +223,28 @@ export default function Tasks() {
               </Card>
             </Link>
           ))}
+          {totalPages > 1 && (
+            <div className="flex justify-center gap-4 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                disabled={page === 0}
+              >
+                Anterior
+              </Button>
+              <span className="self-center">
+                Pagina {page + 1} din {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                disabled={page >= totalPages - 1}
+              >
+                Următor
+              </Button>
+            </div>
+          )}
+
         </div>
       )}
     </div>

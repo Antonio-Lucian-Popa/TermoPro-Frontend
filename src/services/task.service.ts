@@ -9,10 +9,27 @@ class TaskService {
     return apiService.post(`/tasks?${params.toString()}`, task);
   }
   
-  async getCompanyTasks(companyId: string): Promise<Task[]> {
+  // async getCompanyTasks(companyId: string): Promise<Task[]> {
    
-    return apiService.get(`/tasks/company/${companyId}`);
+  //   return apiService.get(`/tasks/company/${companyId}`);
+  // }
+
+  async getCompanyTasksPaginated(companyId: string, page = 0, size = 10, status?: string, type?: string): Promise<{ content: Task[], totalPages: number, totalElements: number }> {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      size: size.toString(),
+    });
+  
+    if (status && status !== 'all') {
+      params.append('status', status);
+    }
+    if (type && type !== 'all') {
+      params.append('type', type);
+    }
+  
+    return apiService.get(`/tasks/company/${companyId}?${params.toString()}`);
   }
+  
   
   async getTeamTasks(teamId: string): Promise<Task[]> {
     return apiService.get(`/tasks/team/${teamId}`);
