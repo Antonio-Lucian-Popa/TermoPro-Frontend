@@ -2,8 +2,13 @@ import { Team, TeamMember, User } from '@/types';
 import { apiService } from './api';
 
 class TeamService {
-  async createTeam(team: { name: string; companyId: string }): Promise<Team> {
-    return apiService.post('/teams', team);
+  async createTeam(team: { name: string; companyId: string; requesterId: string }): Promise<Team> {
+    const params = new URLSearchParams({
+      name: team.name,
+      companyId: team.companyId,
+      requesterId: team.requesterId,
+    });
+    return apiService.post(`/teams?${params.toString()}`);
   }
   
   async getCompanyTeams(companyId: string): Promise<Team[]> {
