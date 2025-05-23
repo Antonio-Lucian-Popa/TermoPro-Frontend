@@ -63,6 +63,7 @@ export default function RegisterInvite() {
             form.setValue("role", role);
             setIsRolePredefined(true); // 👈 indicăm că rolul e deja setat
             form.setValue("companyId", companyId);
+            setTokenValid(true);
           }
         } catch (error) {
           console.error('Invalid invitation token', error);
