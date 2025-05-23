@@ -29,7 +29,7 @@ const formSchema = z.object({
   role: z.nativeEnum(Role, {
     errorMap: () => ({ message: 'Please select your role' }),
   }),
-  companyId: z.string().optional(),
+  companyId: z.string().optional()
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -81,6 +81,7 @@ export default function RegisterInvite() {
       email: '',
       password: '',
       companyId: undefined,
+      role: undefined,
     },
   });
 
@@ -108,6 +109,8 @@ export default function RegisterInvite() {
         lastName: values.lastName,
         email: values.email || email,
         password: values.password,
+        role: values.role,
+        companyId: values.companyId,
       }, invitationToken);
 
       navigate('/login');
