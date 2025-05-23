@@ -20,7 +20,7 @@ const Dashboard = lazy(() => import('@/pages/dashboard/Dashboard'));
 const CreateCompany = lazy(() => import('@/pages/company/CreateCompany'));
 const CompanyDetails = lazy(() => import('@/pages/company/CompanyDetails'));
 const ManageEmployees = lazy(() => import('@/pages/company/ManageEmployees'));
-const Invitations = lazy(() => import('@/pages/company/Invitations'));
+const Invitations = lazy(() => import('@/pages/invitations/Invitations'));
 
 // Teams
 const Teams = lazy(() => import('@/pages/teams/Teams'));
@@ -69,14 +69,6 @@ export default function AppRoutes() {
             <Route path="/company/create" element={<CreateCompany />} />
             <Route path="/company/:companyId" element={<CompanyDetails />} />
             <Route path="/company/:companyId/employees" element={<ManageEmployees />} />
-            <Route 
-              path="/company/:companyId/invitations" 
-              element={
-                <ProtectedRoute allowedRoles={[Role.OWNER, Role.MANAGER]}>
-                  <Invitations />
-                </ProtectedRoute>
-              } 
-            />
 
             {/* Teams Routes */}
             <Route path="/teams" element={<Teams />} />
@@ -117,6 +109,18 @@ export default function AppRoutes() {
                 </ProtectedRoute>
               } 
             />
+
+            {/* Invitations Routes */}
+            <Route
+              path="/invitations/:companyId"
+              element={
+                <ProtectedRoute allowedRoles={[Role.OWNER, Role.MANAGER]}>
+                  <Invitations />
+                </ProtectedRoute>
+              }
+            />
+
+
             <Route path="/timeoff/create" element={<CreateTimeOff />} />
           </Route>
         </Route>

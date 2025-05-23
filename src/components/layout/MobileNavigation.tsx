@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { 
+import {
   CalendarDays,
   ClipboardList,
   LayoutDashboard,
@@ -13,12 +13,12 @@ import { Role } from '@/types';
 export default function MobileNavigation() {
   const location = useLocation();
   const { user } = useAuth();
-  
+
   const isActive = (path: string) => {
     if (path === '/') return location.pathname === '/';
     return location.pathname.startsWith(path);
   };
-  
+
   const navItems = [
     {
       name: 'Dashboard',
@@ -49,6 +49,12 @@ export default function MobileNavigation() {
       href: '/timeoff',
       icon: <CalendarDays className="h-5 w-5" />,
       roles: undefined
+    },
+    {
+      name: 'Invitații',
+      href: `/invitations/${user?.companyId}`,
+      icon: <Users className="h-5 w-5" />,
+      roles: [Role.OWNER, Role.MANAGER]
     }
   ];
 
@@ -60,9 +66,9 @@ export default function MobileNavigation() {
           if (item.roles && (!user || !item.roles.includes(user.role))) {
             return null;
           }
-          
+
           const active = isActive(item.href);
-          
+
           return (
             <Link
               key={item.href}

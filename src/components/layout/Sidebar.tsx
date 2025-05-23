@@ -40,6 +40,12 @@ export default function Sidebar() {
       name: 'Timp liber',
       href: '/timeoff',
       icon: <CalendarDays className="mr-2 h-5 w-5" />
+    },
+    {
+      name: 'Invitații',
+      href: `/invitations/${user?.companyId}`,
+      icon: <Users className="mr-2 h-5 w-5" />,
+      roles: [Role.OWNER, Role.MANAGER]
     }
   ];
   
