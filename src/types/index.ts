@@ -83,12 +83,7 @@ export interface Team {
   companyId: string;
   createdAt: string;
   updatedAt: string;
-}
-
-export interface TeamMember {
-  teamId: string;
-  userId: string;
-  user: User;
+  members: User[];
 }
 
 export interface Task {

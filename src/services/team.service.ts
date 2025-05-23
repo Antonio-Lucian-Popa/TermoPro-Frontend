@@ -19,12 +19,19 @@ class TeamService {
     return apiService.get(`/teams/${teamId}`);
   }
   
-  async addUserToTeam(teamId: string, userId: string): Promise<void> {
-    return apiService.post(`/teams/${teamId}/add/${userId}`);
+  async addUserToTeam(teamId: string, userId: string, requesterId: string): Promise<void> {
+    const params = new URLSearchParams({
+      userId: userId,
+      requesterId: requesterId,
+    });
+    return apiService.post(`/teams/${teamId}/members?${params.toString()}`);
   }
   
-  async removeUserFromTeam(teamId: string, userId: string): Promise<void> {
-    return apiService.delete(`/teams/${teamId}/remove/${userId}`);
+  async removeUserFromTeam(teamId: string, userId: string, requesterId: string): Promise<void> {
+    const params = new URLSearchParams({
+      requesterId: requesterId,
+    });
+    return apiService.delete(`/teams/${teamId}/members/${userId}?${params.toString()}`);
   }
   
   async getTeamMembers(teamId: string): Promise<TeamMember[]> {

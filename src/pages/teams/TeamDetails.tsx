@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { UserPlus, Trash2 } from 'lucide-react';
@@ -23,10 +24,23 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useAuth } from '@/context/AuthContext';
-import { Team, TeamMember, Role } from '@/types';
+import { Team, Role, User } from '@/types';
 import { teamService } from '@/services/team.service';
 import { useToast } from '@/hooks/use-toast';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
+
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { companyService } from '@/services/company.service';
+
 
 export default function TeamDetails() {
   const { teamId } = useParams<{ teamId: string }>();
@@ -34,14 +48,36 @@ export default function TeamDetails() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [team, setTeam] = useState<Team | null>(null);
-  const [members, setMembers] = useState<TeamMember[]>([]);
+  const [members, setMembers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [showDialog, setShowDialog] = useState(false);
+  const [availableUsers, setAvailableUsers] = useState<User[]>([]);
+  const [selectedUserId, setSelectedUserId] = useState<string>('');
+
 
   useEffect(() => {
     if (teamId) {
       loadTeamDetails();
     }
   }, [teamId]);
+
+  const loadAvailableUsers = async () => {
+    try {
+      const companyUsers = await companyService.getCompanyUsers(team!.companyId); // Creează acest endpoint dacă nu-l ai
+      const nonMembers = companyUsers.filter(
+        (u) => !members.some((m) => m.id === u.id)
+      );
+      setAvailableUsers(nonMembers);
+    } catch {
+      toast({
+        variant: 'destructive',
+        title: 'Eroare',
+        description: 'Nu am putut încărca utilizatorii disponibili.',
+      });
+    }
+  };
+
 
   const loadTeamDetails = async () => {
     if (!teamId) return;
@@ -69,8 +105,8 @@ export default function TeamDetails() {
     if (!teamId) return;
 
     try {
-      await teamService.removeUserFromTeam(teamId, userId);
-      setMembers(members.filter(member => member.userId !== userId));
+      await teamService.removeUserFromTeam(teamId, userId, user!.id);
+      setMembers(members.filter(member => member.id !== userId));
       toast({
         title: 'Succes',
         description: 'Membrul a fost eliminat din echipă.',
@@ -104,10 +140,54 @@ export default function TeamDetails() {
           </p>
         </div>
         {canManageTeam && (
-          <Button asChild>
-            <UserPlus className="mr-2 h-4 w-4" />
-            Adaugă membru
-          </Button>
+          <Dialog open={showDialog} onOpenChange={setShowDialog}>
+            <DialogTrigger asChild>
+              <Button onClick={loadAvailableUsers}>
+                <span className="flex items-center gap-2">
+                  <UserPlus className="h-4 w-4" />
+                  Adaugă membru
+                </span>
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Adaugă membru în echipă</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <Label htmlFor="user">Selectează un utilizator</Label>
+                <Select onValueChange={setSelectedUserId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Alege un utilizator" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableUsers.map((user) => (
+                      <SelectItem key={user.id} value={user.id}>
+                        {user.firstName} {user.lastName} ({user.email})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <DialogFooter>
+                <Button
+                  disabled={!selectedUserId}
+                  onClick={async () => {
+                    try {
+                      await teamService.addUserToTeam(team!.id, selectedUserId, user!.id);
+                      toast({ title: 'Succes', description: 'Membrul a fost adăugat.' });
+                      setShowDialog(false);
+                      loadTeamDetails(); // reîncarcă membrii
+                    } catch {
+                      toast({ variant: 'destructive', title: 'Eroare', description: 'Adăugarea a eșuat.' });
+                    }
+                  }}
+                >
+                  Adaugă
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
         )}
       </div>
 
@@ -135,12 +215,12 @@ export default function TeamDetails() {
               </TableHeader>
               <TableBody>
                 {members.map((member) => (
-                  <TableRow key={member.userId}>
+                  <TableRow key={member.id}>
                     <TableCell>
-                      {member.user.firstName} {member.user.lastName}
+                      {member.firstName} {member.lastName}
                     </TableCell>
-                    <TableCell>{member.user.email}</TableCell>
-                    <TableCell>{member.user.role}</TableCell>
+                    <TableCell>{member.email}</TableCell>
+                    <TableCell>{member.role}</TableCell>
                     {canManageTeam && (
                       <TableCell className="text-right">
                         <AlertDialog>
@@ -161,7 +241,7 @@ export default function TeamDetails() {
                             <AlertDialogFooter>
                               <AlertDialogCancel>Anulează</AlertDialogCancel>
                               <AlertDialogAction
-                                onClick={() => handleRemoveMember(member.userId)}
+                                onClick={() => handleRemoveMember(member.id)}
                               >
                                 Elimină
                               </AlertDialogAction>
