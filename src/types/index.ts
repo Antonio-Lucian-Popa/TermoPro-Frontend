@@ -149,6 +149,7 @@ export interface TimeOffRequest {
   createdAt: string;
   updatedAt: string;
   user: User;
+  companyId: string;
 }
 
 export interface DashboardStats {

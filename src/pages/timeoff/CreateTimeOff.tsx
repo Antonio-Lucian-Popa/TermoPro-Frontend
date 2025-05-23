@@ -66,6 +66,7 @@ export default function CreateTimeOff() {
       await timeOffService.createTimeOffRequest({
         ...values,
         userId: user.id,
+        companyId: user.companyId,
       });
 
       toast({
