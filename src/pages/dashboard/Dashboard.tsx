@@ -17,79 +17,81 @@ import {
 import { useAuth } from '@/context/AuthContext';
 import { DashboardStats, Role, Task } from '@/types';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import { taskService } from '@/services/task.service';
+import { toast } from '@/hooks/use-toast';
 
 // Mock data for demonstration
-const mockStats: DashboardStats = {
-  totalTasks: 24,
-  pendingTasks: 8,
-  completedTasks: 16,
-  totalOrders: 18,
-  pendingOrders: 5,
-  completedOrders: 13,
-  upcomingTimeOff: [
-    {
-      id: '1',
-      userId: '1',
-      startDate: '2025-07-15',
-      endDate: '2025-07-20',
-      type: 'CONCEDIU',
-      status: 'APPROVED',
-      createdAt: '2025-06-01',
-      updatedAt: '2025-06-02',
-      user: {
-        id: '1',
-        keycloakId: 'kc1',
-        firstName: 'Ion',
-        lastName: 'Popescu',
-        email: 'ion@firma.ro',
-        role: Role.TECHNICIAN,
-        companyId: '1',
-        createdAt: '2025-01-01',
-        updatedAt: '2025-01-01'
-      }
-    }
-  ],
-  recentTasks: [
-    {
-      id: '1',
-      title: 'Montaj ferestre',
-      description: 'Montaj ferestre la Str. Victoriei 10, Etaj 2',
-      taskType: 'MONTARE',
-      status: 'PENDING',
-      scheduledDate: '2025-06-15',
-      assignedBy: '2',
-      companyId: '1',
-      createdAt: '2025-06-01',
-      updatedAt: '2025-06-01'
-    },
-    {
-      id: '2',
-      title: 'Reparație ușă',
-      description: 'Reparație ușă la Str. Libertății 5',
-      taskType: 'REPARATIE',
-      status: 'IN_PROGRESS',
-      scheduledDate: '2025-06-12',
-      assignedBy: '2',
-      companyId: '1',
-      createdAt: '2025-06-02',
-      updatedAt: '2025-06-02'
-    }
-  ],
-  todayTasks: [
-    {
-      id: '3',
-      title: 'Măsurare ferestre',
-      description: 'Măsurare ferestre la Str. Primăverii 8',
-      taskType: 'MASURARE',
-      status: 'PENDING',
-      scheduledDate: '2025-06-10',
-      assignedBy: '2',
-      companyId: '1',
-      createdAt: '2025-06-03',
-      updatedAt: '2025-06-03'
-    }
-  ]
-};
+// const mockStats: DashboardStats = {
+//   totalTasks: 24,
+//   pendingTasks: 8,
+//   completedTasks: 16,
+//   totalOrders: 18,
+//   pendingOrders: 5,
+//   completedOrders: 13,
+//   upcomingTimeOff: [
+//     {
+//       id: '1',
+//       userId: '1',
+//       startDate: '2025-07-15',
+//       endDate: '2025-07-20',
+//       type: 'CONCEDIU',
+//       status: 'APPROVED',
+//       createdAt: '2025-06-01',
+//       updatedAt: '2025-06-02',
+//       user: {
+//         id: '1',
+//         keycloakId: 'kc1',
+//         firstName: 'Ion',
+//         lastName: 'Popescu',
+//         email: 'ion@firma.ro',
+//         role: Role.TECHNICIAN,
+//         companyId: '1',
+//         createdAt: '2025-01-01',
+//         updatedAt: '2025-01-01'
+//       }
+//     }
+//   ],
+//   recentTasks: [
+//     {
+//       id: '1',
+//       title: 'Montaj ferestre',
+//       description: 'Montaj ferestre la Str. Victoriei 10, Etaj 2',
+//       taskType: 'MONTARE',
+//       status: 'PENDING',
+//       scheduledDate: '2025-06-15',
+//       assignedBy: '2',
+//       companyId: '1',
+//       createdAt: '2025-06-01',
+//       updatedAt: '2025-06-01'
+//     },
+//     {
+//       id: '2',
+//       title: 'Reparație ușă',
+//       description: 'Reparație ușă la Str. Libertății 5',
+//       taskType: 'REPARATIE',
+//       status: 'IN_PROGRESS',
+//       scheduledDate: '2025-06-12',
+//       assignedBy: '2',
+//       companyId: '1',
+//       createdAt: '2025-06-02',
+//       updatedAt: '2025-06-02'
+//     }
+//   ],
+//   todayTasks: [
+//     {
+//       id: '3',
+//       title: 'Măsurare ferestre',
+//       description: 'Măsurare ferestre la Str. Primăverii 8',
+//       taskType: 'MASURARE',
+//       status: 'PENDING',
+//       scheduledDate: '2025-06-10',
+//       assignedBy: '2',
+//       companyId: '1',
+//       createdAt: '2025-06-03',
+//       updatedAt: '2025-06-03'
+//     }
+//   ]
+// };
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -98,12 +100,24 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setStats(mockStats);
-      setLoading(false);
-    }, 1000);
-  }, []);
+    const fetchStats = async () => {
+      if (!user?.companyId) return;
+      try {
+        const data = await taskService.getDashboardStats(user.companyId);
+        setStats(data);
+      } catch (error) {
+        toast({
+          variant: 'destructive',
+          title: 'Eroare',
+          description: 'Nu am putut încărca datele din dashboard.'
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchStats();
+  }, [user]);
 
   if (loading) {
     return <LoadingSpinner />;
@@ -179,7 +193,7 @@ export default function Dashboard() {
             <CalendarDays className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.upcomingTimeOff.length}</div>
+            <div className="text-2xl font-bold">{stats.upcomingTimeOff?.length ?? 0}</div>
             <p className="text-xs text-muted-foreground">
               Luna aceasta
             </p>

@@ -1,4 +1,4 @@
-import { Task, TaskUpdate } from '@/types';
+import { DashboardStats, Task, TaskUpdate } from '@/types';
 import { apiService } from './api';
 
 class TaskService {
@@ -13,6 +13,10 @@ class TaskService {
    
   //   return apiService.get(`/tasks/company/${companyId}`);
   // }
+
+  async getDashboardStats(companyId: string): Promise<DashboardStats> {
+    return apiService.get(`/tasks/company/${companyId}/dashboard`);
+  }
 
   async getCompanyTasksPaginated(companyId: string, page = 0, size = 10, status?: string, type?: string): Promise<{ content: Task[], totalPages: number, totalElements: number }> {
     const params = new URLSearchParams({
