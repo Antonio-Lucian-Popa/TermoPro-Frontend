@@ -7,7 +7,7 @@ class TeamService {
   }
   
   async getCompanyTeams(companyId: string): Promise<Team[]> {
-    return apiService.get(`/teams/company/${companyId}`);
+    return apiService.get(`/teams?companyId=${companyId}`);
   }
   
   async getTeamDetails(teamId: string): Promise<Team> {
