@@ -3,7 +3,7 @@ import { apiService } from './api';
 
 class OrderService {
   async createOrder(order: Partial<Order>): Promise<Order> {
-    return apiService.post('/orders', order);
+    return apiService.post('/orders/create', order);
   }
   
   async getCompanyOrders(companyId: string): Promise<Order[]> {
@@ -31,7 +31,10 @@ class OrderService {
   }
   
   async updateOrderStatus(orderId: string, status: string): Promise<Order> {
-    return apiService.put(`/orders/${orderId}/status`, { status });
+    const params = new URLSearchParams({
+      status,
+    });
+    return apiService.put(`/orders/${orderId}/status?${params.toString()}`, { status });
   }
   
   async exportOrdersToPdf(companyId: string): Promise<Blob> {

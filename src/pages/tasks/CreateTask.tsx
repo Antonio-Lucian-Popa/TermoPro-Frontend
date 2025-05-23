@@ -26,6 +26,7 @@ import { useAuth } from '@/context/AuthContext';
 import { TaskType } from '@/types';
 import { taskService } from '@/services/task.service';
 import { useToast } from '@/hooks/use-toast';
+import AssignToFields from './AssignToFields';
 
 const formSchema = z.object({
   title: z.string().min(3, 'Titlul trebuie să aibă cel puțin 3 caractere'),
@@ -63,7 +64,7 @@ export default function CreateTask() {
         ...values,
         companyId: user.companyId,
         assignedBy: user.id,
-      });
+      }, user.id);
 
       toast({
         title: 'Succes',
@@ -121,7 +122,7 @@ export default function CreateTask() {
                   <FormItem>
                     <FormLabel>Descriere</FormLabel>
                     <FormControl>
-                      <Textarea 
+                      <Textarea
                         placeholder="Descrieți detaliile sarcinii..."
                         className="min-h-[100px]"
                         {...field}
@@ -138,8 +139,8 @@ export default function CreateTask() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Tip sarcină</FormLabel>
-                    <Select 
-                      onValueChange={field.onChange} 
+                    <Select
+                      onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
@@ -173,6 +174,9 @@ export default function CreateTask() {
                   </FormItem>
                 )}
               />
+
+              <AssignToFields control={form.control} setValue={form.setValue} watch={form.watch} />
+
 
               <div className="flex gap-2 pt-4">
                 <Button type="submit" disabled={loading}>

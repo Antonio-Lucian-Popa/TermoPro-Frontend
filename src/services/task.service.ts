@@ -2,11 +2,15 @@ import { Task, TaskUpdate } from '@/types';
 import { apiService } from './api';
 
 class TaskService {
-  async createTask(task: Partial<Task>): Promise<Task> {
-    return apiService.post('/tasks', task);
+  async createTask(task: Partial<Task>, creatorUserId: string): Promise<Task> {
+    const params = new URLSearchParams({
+      creatorUserId
+    });
+    return apiService.post(`/tasks?${params.toString()}`, task);
   }
   
   async getCompanyTasks(companyId: string): Promise<Task[]> {
+   
     return apiService.get(`/tasks/company/${companyId}`);
   }
   
