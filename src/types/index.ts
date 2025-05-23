@@ -161,4 +161,6 @@ export interface DashboardStats {
   upcomingTimeOff: TimeOffRequest[];
   recentTasks: Task[];
   todayTasks: Task[];
+  totalTeams: number;
+  totalTeamMembers: number;
 }

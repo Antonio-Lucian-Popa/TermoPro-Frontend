@@ -181,10 +181,8 @@ export default function Dashboard() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">3</div>
-            <p className="text-xs text-muted-foreground">
-              15 membri în total
-            </p>
+          <div className="text-2xl font-bold">{stats.totalTeams}</div>
+            <p className="text-xs text-muted-foreground">{stats.totalTeamMembers} membri în total</p>
           </CardContent>
         </Card>
         <Card>
