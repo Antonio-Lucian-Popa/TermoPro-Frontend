@@ -101,17 +101,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const register = async (userData: Partial<User> & { password: string }) => {
+  const register = async (userData: Partial<User> & { password: string }): Promise<User> => {
     setLoading(true);
     setError(null);
     
     try {
-      await authService.register(userData);
+      const createdUser = await authService.register(userData);
       
       toast({
         title: "Registration successful",
         description: "Your account has been created. You can now log in.",
       });
+
+      return createdUser;
     } catch (err) {
       setError("Registration failed. Please try again.");
       toast({
@@ -119,6 +121,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         title: "Registration failed",
         description: "Could not create your account. Please try again.",
       });
+      throw err; // Re-throw the error to ensure the caller is aware of the failure
     } finally {
       setLoading(false);
     }

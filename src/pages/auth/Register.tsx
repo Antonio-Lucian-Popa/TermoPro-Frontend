@@ -66,6 +66,8 @@ export default function Register() {
         role: values.role
       });
 
+      console.log("USer: ", user);
+
       if(user) {
        await companyService.createCompany({
           name: values.companyName,
