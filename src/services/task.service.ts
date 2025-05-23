@@ -22,16 +22,23 @@ class TaskService {
     return apiService.get(`/tasks/user/${userId}`);
   }
   
-  async getTaskDetails(taskId: string): Promise<Task> {
-    return apiService.get(`/tasks/${taskId}`);
+  async getTaskDetails(taskId: string, companyId: string): Promise<Task> {
+    return apiService.get(`/tasks/${companyId}/${taskId}`);
   }
   
-  async updateTaskStatus(taskId: string, status: string): Promise<Task> {
-    return apiService.put(`/tasks/${taskId}/status`, { status });
+  async updateTaskStatus(taskId: string, status: string, companyId: string): Promise<Task> {
+    const params = new URLSearchParams({
+      status,
+      companyId
+    });
+    return apiService.put(`/tasks/${taskId}/status?${params.toString()}`);
   }
   
-  async deleteTask(taskId: string): Promise<void> {
-    return apiService.delete(`/tasks/${taskId}`);
+  async deleteTask(taskId: string, userId: string): Promise<void> {
+    const params = new URLSearchParams({
+      userId,
+    });
+    return apiService.delete(`/tasks/${taskId}?${params.toString()}`);
   }
   
   async addTaskUpdate(formData: FormData): Promise<TaskUpdate> {

@@ -19,6 +19,7 @@ import { Task, TaskStatus, TaskType, Role } from '@/types';
 import { taskService } from '@/services/task.service';
 import { useToast } from '@/hooks/use-toast';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import { authService } from '@/services/auth.service';
 
 export default function TaskDetails() {
   const { taskId } = useParams<{ taskId: string }>();
@@ -38,8 +39,16 @@ export default function TaskDetails() {
     if (!taskId) return;
 
     try {
-      const data = await taskService.getTaskDetails(taskId);
-      setTask(data);
+      if (!user?.companyId) {
+        throw new Error('Company ID is required to load task details.');
+      }
+      const data = await taskService.getTaskDetails(taskId, user.companyId);
+      const assignedUser = await authService.getUserById(data.assignedBy);
+      setTask({
+        ...data,
+        assignedByUser: assignedUser, // adaugăm manual userul complet aici
+      });
+      
     } catch (error) {
       toast({
         variant: 'destructive',
@@ -56,7 +65,10 @@ export default function TaskDetails() {
     if (!task || !taskId) return;
 
     try {
-      const updatedTask = await taskService.updateTaskStatus(taskId, newStatus);
+      if (!user?.companyId) {
+        throw new Error('Company ID is required to update task status.');
+      }
+      const updatedTask = await taskService.updateTaskStatus(taskId, newStatus, user.companyId);
       setTask(updatedTask);
       toast({
         title: 'Succes',
@@ -75,7 +87,7 @@ export default function TaskDetails() {
     if (!taskId) return;
 
     try {
-      await taskService.deleteTask(taskId);
+      await taskService.deleteTask(taskId, user?.id || '');
       toast({
         title: 'Succes',
         description: 'Sarcina a fost ștearsă.',

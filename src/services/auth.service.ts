@@ -17,6 +17,10 @@ class AuthService {
   async getUserByKeycloakId(keycloakId: string): Promise<User> {
     return apiService.get(`/users/by-keycloak/${keycloakId}`);
   }
+
+  async getUserById(userId: string): Promise<User> {
+    return apiService.get(`/users/${userId}`);
+  }
   
   async deleteUser(keycloakId: string): Promise<void> {
     return apiService.delete(`/users/by-keycloak/${keycloakId}`);
